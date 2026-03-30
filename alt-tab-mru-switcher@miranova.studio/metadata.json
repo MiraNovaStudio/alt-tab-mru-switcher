@@ -3,7 +3,7 @@
     "name": "Alt-Tab MRU Window Switcher",
     "description": "Windows-style Alt+Tab for GNOME with true MRU ordering and icon-only display",
     "shell-version": ["48"],
-    "version": 1.1,
+    "version": 2,
     "url": "https://miranova.studio",
     "settings-schema": "org.gnome.shell.extensions.alt-tab-mru-switcher"
 }
