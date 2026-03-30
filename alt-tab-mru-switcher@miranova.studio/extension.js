@@ -205,18 +205,38 @@ export default class AltTabMRUExtension extends Extension {
     _getFilteredMRUList() {
         this._cleanupMRUList();
 
+        let list;
         if (this._settings.get_boolean('current-workspace-only')) {
             const activeWs = global.workspace_manager.get_active_workspace();
-            return this._mruList.filter(w => {
+            list = this._mruList.filter(w => {
                 try {
                     return w.get_workspace() === activeWs;
                 } catch {
                     return false;
                 }
             });
+        } else {
+            list = [...this._mruList];
         }
 
-        return [...this._mruList];
+        // Deduplicate: keep only one window per app (or per wm_class for
+        // Wine/Proton windows where WindowTracker returns no app).  This
+        // prevents Steam games from spawning multiple identical gear icons
+        // for helper processes (CefHost, xalia, etc.).
+        const tracker = Shell.WindowTracker.get_default();
+        const seen = new Set();
+        return list.filter(w => {
+            try {
+                const app = tracker.get_window_app(w);
+                const key = app ? app.get_id() : (w.get_wm_class() || `pid-${w.get_pid()}`);
+                if (seen.has(key))
+                    return false;
+                seen.add(key);
+                return true;
+            } catch {
+                return true;
+            }
+        });
     }
 
     _startCycle(backward, modifierMask) {
