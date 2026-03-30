@@ -219,19 +219,21 @@ export default class AltTabMRUExtension extends Extension {
             list = [...this._mruList];
         }
 
-        // Deduplicate: keep only one window per app (or per wm_class for
-        // Wine/Proton windows where WindowTracker returns no app).  This
-        // prevents Steam games from spawning multiple identical gear icons
-        // for helper processes (CefHost, xalia, etc.).
+        // Deduplicate only Wine/Proton windows where WindowTracker returns
+        // no app — these are helper processes (CefHost, xalia, etc.) that
+        // spawn multiple identical gear icons.  Normal app windows (Chrome,
+        // terminal, etc.) are always kept even when there are several.
         const tracker = Shell.WindowTracker.get_default();
-        const seen = new Set();
+        const seenUntracked = new Set();
         return list.filter(w => {
             try {
                 const app = tracker.get_window_app(w);
-                const key = app ? app.get_id() : (w.get_wm_class() || `pid-${w.get_pid()}`);
-                if (seen.has(key))
+                if (app)
+                    return true;           // tracked app → always keep
+                const key = w.get_wm_class() || `pid-${w.get_pid()}`;
+                if (seenUntracked.has(key))
                     return false;
-                seen.add(key);
+                seenUntracked.add(key);
                 return true;
             } catch {
                 return true;
