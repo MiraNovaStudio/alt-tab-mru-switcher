@@ -219,10 +219,11 @@ export default class AltTabMRUExtension extends Extension {
             list = [...this._mruList];
         }
 
-        // Deduplicate only Wine/Proton windows where WindowTracker returns
-        // no app — these are helper processes (CefHost, xalia, etc.) that
-        // spawn multiple identical gear icons.  Normal app windows (Chrome,
-        // terminal, etc.) are always kept even when there are several.
+        // Deduplicate untracked windows (Wine/Proton helpers, flatpak
+        // child processes, etc.) that spawn multiple ghost gear icons.
+        // Normal tracked app windows are always kept even when there are
+        // several.  Untracked windows must have at least a WM_CLASS or
+        // title to be shown — windows with neither are invisible ghosts.
         const tracker = Shell.WindowTracker.get_default();
         const seenUntracked = new Set();
         return list.filter(w => {
@@ -230,7 +231,16 @@ export default class AltTabMRUExtension extends Extension {
                 const app = tracker.get_window_app(w);
                 if (app)
                     return true;           // tracked app → always keep
-                const key = w.get_wm_class() || `pid-${w.get_pid()}`;
+
+                const wmClass = w.get_wm_class();
+                const title = w.get_title();
+
+                // No identity at all → ghost window, skip
+                if (!wmClass && !title)
+                    return false;
+
+                // Dedup key: prefer wm_class, fall back to title, then pid
+                const key = wmClass || title || `pid-${w.get_pid()}`;
                 if (seenUntracked.has(key))
                     return false;
                 seenUntracked.add(key);
