@@ -1,50 +1,55 @@
 # Alt-Tab MRU Window Switcher
 
-A GNOME Shell extension that replaces the default Alt+Tab with a **Windows-style window switcher** using true MRU (Most Recently Used) ordering.
+A GNOME Shell extension that replaces Alt+Tab with a window switcher ordered by most recent use.
 
 ## Features
 
-- **Window-based switching** — cycles individual windows, not application groups
-- **True MRU ordering** — Alt+Tab always switches to the last focused window
-- **Back-and-forth toggle** — pressing Alt+Tab twice returns to the previous window
-- **Icon-only overlay** — lightweight popup with application icons and highlighted selection
-- **Cross-workspace support** — includes windows from all workspaces (configurable)
-- **Immediate switching** — no animations or delays
+- Switches individual windows, not application groups
+- Alt+Tab goes to the last focused window
+- Pressing Alt+Tab twice returns to the previous window
+- Shows an icon-only overlay with the current selection highlighted
+- Includes windows from every workspace, or only the current one
+- Switches immediately, with no animation delay
 
 ## Requirements
 
-- GNOME Shell 48
+GNOME Shell 48
 
 ## Installation
 
-### From source
+From the repository root:
 
 ```bash
 ./install.sh
 ```
 
-This compiles the GSettings schema and copies the extension to `~/.local/share/gnome-shell/extensions/`.
+The script compiles the GSettings schema and copies the extension to `~/.local/share/gnome-shell/extensions/`.
 
-After installing, restart GNOME Shell (log out/in on Wayland) and enable the extension:
+Restart GNOME Shell, then enable the extension:
+
+- Wayland: log out and back in
+- X11: press Alt+F2, type `r`, and press Enter
 
 ```bash
 gnome-extensions enable alt-tab-mru-switcher@miranova.studio
 ```
 
+You can also enable it from Extension Manager.
+
 ## Configuration
 
-Open the extension preferences or use `dconf`:
+Open the extension preferences, or change the setting with `gsettings`. The schema is `org.gnome.shell.extensions.alt-tab-mru-switcher`.
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| `current-workspace-only` | Only show windows from the current workspace | `false` |
+| `current-workspace-only` | Limit the switcher to the current workspace | `false` |
 
 ## Keybindings
 
 | Shortcut | Action |
 |----------|--------|
-| `Alt+Tab` | Switch to next window in MRU order |
-| `Alt+Shift+Tab` | Switch to previous window in MRU order |
+| Alt+Tab | Next window in MRU order |
+| Alt+Shift+Tab | Previous window in MRU order |
 
 ## License
 
